@@ -62,7 +62,10 @@ describe('Agent should close inactive clients', () => {
 
     await p
   })
+})
 
+// https://github.com/nodejs/undici/issues/5022
+describe('Agent should not close active clients', () => {
   test('should reuse replacement keep-alive connection after server closes the previous one', async (t) => {
     let nextSocketId = 0
     const socketIds = new Map()
