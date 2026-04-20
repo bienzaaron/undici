@@ -17,17 +17,15 @@ describe('Agent should close inactive clients', () => {
       server.close()
     })
 
+    /** @type {Promise<void>} */
     let p
     const agent = new Agent({
       factory: (origin, opts) => {
         const pool = new Pool(origin, opts)
-        let _resolve, _reject
-        p = new Promise((resolve, reject) => {
-          _resolve = resolve
-          _reject = reject
-        })
+        const { promise, resolve, reject } = Promise.withResolvers()
+        p = promise
         pool.on('disconnect', () => {
-          setImmediate(() => pool.destroyed ? _resolve() : _reject(new Error('client not destroyed')))
+          setImmediate(() => pool.destroyed ? resolve() : reject(new Error('client not destroyed')))
         })
         return pool
       }
@@ -39,17 +37,15 @@ describe('Agent should close inactive clients', () => {
   })
 
   test('in case of connection error', async (t) => {
+    /** @type {Promise<void>} */
     let p
     const agent = new Agent({
       factory: (origin, opts) => {
         const pool = new Pool(origin, opts)
-        let _resolve, _reject
-        p = new Promise((resolve, reject) => {
-          _resolve = resolve
-          _reject = reject
-        })
+        const { promise, resolve, reject } = Promise.withResolvers()
+        p = promise
         pool.on('connectionError', () => {
-          setImmediate(() => pool.destroyed ? _resolve() : _reject(new Error('client not destroyed')))
+          setImmediate(() => pool.destroyed ? resolve() : reject(new Error('client not destroyed')))
         })
         return pool
       }
